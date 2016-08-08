@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<world x="1920" y="1080">
+	<samples>1</samples>
+	<camera>
+		<origin x="50.0" y="50.0" z="-600.0"></origin>
+		<direction x= "0.0" y = "0.0" z = "0.0"></direction>
+		<FOV>30</FOV>
+    </camera>
+	<objects>
+		<plane>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="1.0" b="1.0"></colour>
+			<origin x="0.0" y="-80.0" z="0.0"></origin>
+			<normal x="0.0" y="-1.0" z="0.0"></normal>
+		</plane>
+		<plane>
+			<shader>Lambertian</shader>
+			<colour r="0.0" g="1.0" b="1.0"></colour>
+			<origin x="0.0" y="400.0" z="0.0"></origin>
+			<normal x="0.0" y="1.0" z="0.0"></normal>
+		</plane>
+		<plane>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="0.0" b="1.0"></colour>
+			<origin x="-400.0" y="0.0" z="0.0"></origin>
+			<normal x="-1.0" y="0.0" z="0.0"></normal>
+		</plane>
+		<plane>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="1.0" b="0.0"></colour>
+			<origin x="400.0" y="0.0" z="0.0"></origin>
+			<normal x="1.0" y="0.0" z="0.0"></normal>
+		</plane>
+		<plane>
+			<shader>Lambertian</shader>
+			<colour r="0.5" g="0.0" b="0.0"></colour>
+			<origin x="0.0" y="0.0" z="500.0"></origin>
+			<normal x="0.0" y="0.0" z="1.0"></normal>
+		</plane>
+		<sphere>
+			<shader>Reflective</shader>
+			<origin x="-110.0" y="-30.0" z="0.0"></origin>
+			<radius>50</radius>
+		</sphere>
+		<sphere>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="0.0" b="0.0"></colour>
+			<origin x="110.0" y="-30.0" z="0.0"></origin>
+			<radius>50</radius>
+		</sphere>
+		<sphere>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="1.0" b="0.0"></colour>
+			<origin x="110.0" y="-30.0" z="-100.0"></origin>
+			<radius>50</radius>
+		</sphere>
+		<sphere>
+			<shader>Reflective</shader>
+			<origin x="-220.0" y="-30.0" z="0.0"></origin>
+			<radius>50</radius>
+		</sphere>
+		<sphere>
+			<shader>Lambertian</shader>
+			<colour r="1.0" g="0.0" b="0.0"></colour>
+			<origin x="220.0" y="-30.0" z="0.0"></origin>
+			<radius>50</radius>
+		</sphere>
+	</objects>
+	<lights>
+		<light>
+			<origin x="150.0" y="200.0" z="-300.0"></origin>
+			<colour r="0.0" g="1.0" b="1.0"></colour>
+		</light>
+		<light>
+			<origin x="-150.0" y="200.0" z="-300.0"></origin>
+			<colour r="0.0" g="0.0" b="1.0"></colour>
+		</light>
+		<light>
+			<origin x="150.0" y="200.0" z="-0.0"></origin>
+			<colour r="1.0" g="1.0" b="0.0"></colour>
+		</light>
+		<light>
+			<origin x="-150.0" y="200.0" z="0.0"></origin>
+			<colour r="1.0" g="1.0" b="1.0"></colour>
+		</light>
+        <light>
+            <origin x="0.0" y="100.0" z="-300.0"></origin>
+            <colour r="1.0" g="1.0" b="1.0"></colour>
+        </light>
+	</lights>
+</world>
