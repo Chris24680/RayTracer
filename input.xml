@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <world x="1920" y="1080">
-	<samples>1</samples>
+	<samples>4</samples>
 	<camera>
 		<origin x="50.0" y="50.0" z="-600.0"></origin>
 		<direction x= "0.0" y = "0.0" z = "0.0"></direction>

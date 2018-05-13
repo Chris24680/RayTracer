@@ -12,6 +12,12 @@ import Projection.Projector;
 import antialising.Sampler;
 import antialising.SimpleSampler;
 
+import java.sql.Time;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 public class RayTracer {
 	
 	//Set Up the rendering environment
@@ -30,34 +36,41 @@ public class RayTracer {
         parser = new Parser("input.xml");
         parser.parse();
         image = new Image("image.png");
-        
-      
-        
-        double perc = 0;
-        //Main loop of program, goes through each pixel in image and assigns a colour value
-        for(int y = 0; y<world.getViewPlane().getHeight(); y++){
-        	
-        	
-        	double tempperc = (y/(float) world.getViewPlane().getHeight())*100.0;
-        	
-        	if (tempperc-perc>1){
-        		//print percentage computed
-        		System.out.printf("%.2f", tempperc);
-        		System.out.print("%\n");
-        		perc = tempperc;
-        	}
-        	
-        	
-            for(int x = 0; x<world.getViewPlane().getWidth(); x++) {
 
-            	//Render pixel colour
-            	trace(x, y);
-            	
-                
-            }
-        }
-        
-        //Save final image
+		int numberOfCores = Runtime.getRuntime().availableProcessors();
+		ArrayList<Tracer> tracers = new ArrayList<Tracer>();
+
+		for(int i=1; i<=numberOfCores; i++){
+			int startLine = (world.getViewPlane().getHeight()/numberOfCores)*i;
+			int endLine = startLine+(world.getViewPlane().getHeight()/numberOfCores);
+			tracers.add(new Tracer(startLine, endLine));
+		}
+
+		ExecutorService executorService = Executors.newFixedThreadPool(numberOfCores);
+		//ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+		ArrayList<ArrayList<ArrayList<Colour>>> coloursArray = new ArrayList<ArrayList<ArrayList<Colour>>>();
+
+		try {
+
+			ArrayList<Future<ArrayList<ArrayList<Colour>>>> futuresArray = new ArrayList<Future<ArrayList<ArrayList<Colour>>>>();
+			for(int i = 0; i<tracers.size(); i++){
+				futuresArray.add(executorService.submit(tracers.get(i)));
+			}
+
+
+			for(int i=0; i<futuresArray.size(); i++){
+				coloursArray.add(futuresArray.get(i).get());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		for(int i=0; i<coloursArray.size(); i++){
+			setImagePixels(coloursArray.get(i), (world.getViewPlane().getHeight()/numberOfCores)*i);
+		}
+
+		//Save final image
         image.saveImage("PNG");
 
         long end = System.nanoTime();
@@ -68,51 +81,13 @@ public class RayTracer {
         System.out.print("Loop Time = " + ((end - start)/1000000000.0f));
     }
     
-    public static void trace(int x, int y){	
-    	Colour colour = new Colour();
-
-    	//Split each pixel into a number of samples to be tested and test ray intersection for each sample
-    	for(int col = 0; col < sampler.samples; col++){
-    		for(int row = 0; row < sampler.samples; row++){
-    			
-    			//return a 2D point on the view plane to test
-    			Point2D point = sampler.sample(row, col, x, y);
-        		
-    			Ray ray = projector.createRay(point);
-        		
-    			
-    			
-        		double min = Double.MAX_VALUE;
-        		Colour tempColour = new Colour();
-        		
-        		//for each object in the world if the object intersects with the ray and the intersection is the closest to the view plane, add the colour of that object to the overall pixel colour
-        		for(int i=0; i<world.getWorldObjects().size(); i++){
-            		Intersection temp = world.getWorldObjects().get(i).intersect(ray);
-            	
-
-            		if(temp!=null && temp.getDistance()<min){
-            			Shader shader = world.getWorldObjects().get(i).getMaterial();
-            			
-            			
-            			min = temp.getDistance();
-            			
-            			tempColour = shader.shade(temp, world.getWorldLights(), ray);
-            		}
-        		}
-        		
-        		colour.add(tempColour);
-    		}
-    	}
-    	
-    	
-    	//Divide the overall pixel colour by the number of samples
-    	colour.divide(sampler.samples*sampler.samples); 
-    	
-    	
+    public static void setImagePixels(ArrayList<ArrayList<Colour>> colours, int start){
     	//Set pixel colour.
-
-    	image.getBuffer().setRGB(x, world.getViewPlane().getHeight()-y-1, colour.toInteger());
-
+		for(int y=0; y<colours.size(); y++){
+			for(int x=0; x<colours.get(0).size(); x++){
+				image.getBuffer().setRGB(x, ((world.getViewPlane().getHeight()-start)-y)-1, colours.get(y).get(x).toInteger());
+			}
+		}
     }
     
     
@@ -178,9 +153,4 @@ public class RayTracer {
 	public static void setParser(Parser parser) {
 		RayTracer.parser = parser;
 	}
-	
-	
-	
-	
-
 }
