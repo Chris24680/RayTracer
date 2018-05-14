@@ -53,7 +53,7 @@ public class Sphere extends Renderable {
 		}
 	}
 
-	public Normal getNormalAt(Point3D point) {
+	private Normal getNormalAt(Point3D point) {
 		
 		Normal normal = new Normal(point);
 		
@@ -63,7 +63,4 @@ public class Sphere extends Renderable {
 		return normal;
 		
 	}
-	
-	
-
 }

@@ -5,6 +5,7 @@ import maths3D.Point3D;
 import maths3D.Ray;
 import utility.Colour;
 import utility.Image;
+import utility.PixelSetter;
 import world.World;
 import Materials.Shader;
 import Projection.PerspectiveProjector;
@@ -14,6 +15,7 @@ import antialising.SimpleSampler;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -46,19 +48,16 @@ public class RayTracer {
 			tracers.add(new Tracer(startLine, endLine));
 		}
 
-		ExecutorService executorService = Executors.newFixedThreadPool(numberOfCores);
-		//ExecutorService executorService = Executors.newSingleThreadExecutor();
+		//ExecutorService executorService = Executors.newFixedThreadPool(numberOfCores);
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 		ArrayList<ArrayList<ArrayList<Colour>>> coloursArray = new ArrayList<ArrayList<ArrayList<Colour>>>();
 
 		try {
-
 			ArrayList<Future<ArrayList<ArrayList<Colour>>>> futuresArray = new ArrayList<Future<ArrayList<ArrayList<Colour>>>>();
 			for(int i = 0; i<tracers.size(); i++){
 				futuresArray.add(executorService.submit(tracers.get(i)));
 			}
-
-
 			for(int i=0; i<futuresArray.size(); i++){
 				coloursArray.add(futuresArray.get(i).get());
 			}
@@ -66,8 +65,22 @@ public class RayTracer {
 			e.printStackTrace();
 		}
 
+		ArrayList<PixelSetter> pixelSetters = new ArrayList<PixelSetter>();
 		for(int i=0; i<coloursArray.size(); i++){
-			setImagePixels(coloursArray.get(i), (world.getViewPlane().getHeight()/numberOfCores)*i);
+			pixelSetters.add(new PixelSetter(coloursArray.get(i), (world.getViewPlane().getHeight()/numberOfCores)*i));
+		}
+
+		ArrayList<Future<Boolean>> futureResults = new ArrayList<Future<Boolean>>();
+
+		try{
+			for(int i = 0; i<pixelSetters.size(); i++){
+				futureResults.add(executorService.submit(pixelSetters.get(i)));
+			}
+			for(int i = 0; i<futureResults.size(); i++){
+				Boolean result = futureResults.get(i).get();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		//Save final image
